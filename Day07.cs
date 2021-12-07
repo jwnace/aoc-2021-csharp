@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace aoc_2021_csharp
@@ -11,14 +10,48 @@ namespace aoc_2021_csharp
 
         public void Part1()
         {
-            Console.WriteLine($"Day 07, Part 1: ");
-            Console.WriteLine($"Not Implemented");
+            var positions = input[0].Split(',').Select(x => int.Parse(x)).ToList();
+            var min = positions.Min();
+            var max = positions.Max();
+            var answer = int.MaxValue;
+
+            for (var i = min; i <= max; i++)
+            {
+                var fuel = positions.Sum(x => Math.Abs(x - i));
+                answer = fuel < answer ? fuel : answer;
+            }
+
+            Console.WriteLine($"Day 07, Part 1: {answer}");
         }
 
         public void Part2()
         {
-            Console.WriteLine($"Day 07, Part 2: ");
-            Console.WriteLine($"Not Implemented");
+            var positions = input[0].Split(',').Select(x => int.Parse(x)).ToList();
+            var min = positions.Min();
+            var max = positions.Max();
+            var answer = int.MaxValue;
+
+            for (var i = min; i <= max; i++)
+            {
+                var totalFuel = 0;
+
+                foreach (var position in positions)
+                {
+                    var steps = Math.Abs(position - i);
+                    var fuel = 0;
+
+                    for (var j = 1; j <= steps; j++)
+                    {
+                        fuel += j;
+                    }
+
+                    totalFuel += fuel;
+                }
+
+                answer = totalFuel < answer ? totalFuel : answer;
+            }
+
+            Console.WriteLine($"Day 07, Part 2: {answer}");        
         }
     }
 }
