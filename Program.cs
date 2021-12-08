@@ -22,11 +22,11 @@
             // new Day06().Part1();
             // new Day06().Part2();
 
-            new Day07().Part1();
-            new Day07().Part2();
+            // new Day07().Part1();
+            // new Day07().Part2();
 
-            // new Day08().Part1();
-            // new Day08().Part2();
+            new Day08().Part1();
+            new Day08().Part2();
 
             // new Day09().Part1();
             // new Day09().Part2();
