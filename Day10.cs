@@ -11,8 +11,9 @@ namespace aoc_2021_csharp
 
         public void Part1()
         {
-            var open = new List<char> { '(', '[', '{', '<' };
-            var incorrect = new List<char>();
+            var dict = new Dictionary<char, char> { { '(', ')' }, { '[', ']' }, { '{', '}' }, { '<', '>' } };
+            var points = new Dictionary<char, int> { { ')', 3 }, { ']', 57 }, { '}', 1197 }, { '>', 25137 } };
+            var illegalChars = new List<char>();
 
             foreach (var line in input)
             {
@@ -20,115 +21,70 @@ namespace aoc_2021_csharp
 
                 for (int i = 0; i < line.Length; i++)
                 {
-                    if (open.Contains(line[i]))
+                    if (dict.ContainsKey(line[i]))
                     {
                         stack.Push(line[i]);
                     }
                     else
                     {
-                        var start = stack.Pop();
-                        var end = line[i];
+                        var temp = stack.Pop();
 
-                        if ((start == '(' && end != ')') || (start == '[' && end != ']') || (start == '{' && end != '}') || (start == '<' && end != '>'))
+                        if (dict[temp] != line[i])
                         {
-                            incorrect.Add(line[i]);
+                            illegalChars.Add(line[i]);
                             break;
                         }
                     }
                 }
             }
 
-            var t1 = incorrect.Count(x => x == ')') * 3;
-            var t2 = incorrect.Count(x => x == ']') * 57;
-            var t3 = incorrect.Count(x => x == '}') * 1197;
-            var t4 = incorrect.Count(x => x == '>') * 25137;
+            var score = illegalChars.Sum(x => points[x]);
 
-            var result = t1 + t2 + t3 + t4;
-
-            Console.WriteLine($"Day 10, Part 1: {result}");
+            Console.WriteLine($"Day 10, Part 1: {score}");
         }
 
         public void Part2()
         {
-            var open = new List<char> { '(', '[', '{', '<' };
-            var linesToRemove = new List<int>();
+            var dict = new Dictionary<char, char> { { '(', ')' }, { '[', ']' }, { '{', '}' }, { '<', '>' } };
+            var points = new Dictionary<char, int> { { '(', 1 }, { '[', 2 }, { '{', 3 }, { '<', 4 } };
+            var scores = new List<long>();
 
-            for (int i = 0; i < input.Length; i++)
+            foreach (var line in input)
             {
-                var line = input[i];
                 var stack = new Stack<char>();
+                var corrupted = false;
+                var score = 0L;
 
-                for (int j = 0; j < line.Length; j++)
+                for (int i = 0; i < line.Length; i++)
                 {
-                    if (open.Contains(line[j]))
+                    if (dict.ContainsKey(line[i]))
                     {
-                        stack.Push(line[j]);
-                    }
-                    else
-                    {
-                        var start = stack.Pop();
-                        var end = line[j];
-
-                        if ((start == '(' && end != ')') || (start == '[' && end != ']') || (start == '{' && end != '}') || (start == '<' && end != '>'))
-                        {
-                            linesToRemove.Add(i);
-                        }
-                    }
-                }
-            }
-
-            var lines = input.ToList();
-
-            foreach (var index in linesToRemove.OrderByDescending(x => x))
-            {
-                lines.RemoveAt(index);
-            }
-
-            var scores = new List<ulong>();
-
-            for (int i = 0; i < lines.Count(); i++)
-            {
-                var line = lines[i];
-                var stack = new Stack<char>();
-
-                for (int j = 0; j < line.Length; j++)
-                {
-                    if (open.Contains(line[j]))
-                    {
-                        stack.Push(line[j]);
+                        stack.Push(line[i]);
                     }
                     else
                     {
                         var temp = stack.Pop();
+
+                        if (dict[temp] != line[i])
+                        {
+                            corrupted = true;
+                            break;
+                        }
                     }
                 }
 
-                var score = 0UL;
-                var count = stack.Count();
-
-                for (int j = 0; j < count; j++)
+                if (!corrupted)
                 {
-                    var c = stack.Pop();
-                    score *= 5;
-
-                    switch (c)
+                    while (stack.Count > 0)
                     {
-                        case '(':
-                            score += 1;
-                            break;
-                        case '[':
-                            score += 2;
-                            break;
-                        case '{':
-                            score += 3;
-                            break;
-                        case '<':
-                            score += 4;
-                            break;
-                    }
-                }
+                        var temp = stack.Pop();
 
-                scores.Add(score);
+                        score *= 5;
+                        score += points[temp];
+                    }
+                    
+                    scores.Add(score);
+                }
             }
 
             var answer = scores.OrderBy(x => x).ElementAt((scores.Count()) / 2);
