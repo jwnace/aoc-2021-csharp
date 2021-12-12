@@ -34,11 +34,11 @@
             // new Day10().Part1();
             // new Day10().Part2();
 
-            new Day11().Part1();
-            new Day11().Part2();
+            // new Day11().Part1();
+            // new Day11().Part2();
 
-            // new Day12().Part1();
-            // new Day12().Part2();
+            new Day12().Part1();
+            new Day12().Part2();
 
             // new Day13().Part1();
             // new Day13().Part2();
