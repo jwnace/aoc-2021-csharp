@@ -49,11 +49,11 @@
             //new Day15().Part1();
             //new Day15().Part2();
 
-            new Day16().Part1();
-            new Day16().Part2();
+            //new Day16().Part1();
+            //new Day16().Part2();
 
-            // new Day17().Part1();
-            // new Day17().Part2();
+            new Day17().Part1();
+            new Day17().Part2();
 
             // new Day18().Part1();
             // new Day18().Part2();
