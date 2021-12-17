@@ -73,7 +73,6 @@ namespace aoc_2021_csharp
                 }
             }
 
-            var start = (0, 0);
             var end = (input.Length * multiplier - 1, input[0].Length * multiplier - 1);
 
             Dijkstra(multiplier);
