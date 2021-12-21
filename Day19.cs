@@ -36,7 +36,7 @@ namespace aoc_2021_csharp
                 scanner.Beacons.Add(new Beacon(x, y, z));
             }
 
-            // populate line segments to look for matches
+            // populate distances to help find matches
             foreach (var scanner in scanners)
             {
                 for (int i = 0; i < scanner.Beacons.Count - 1; i++)
@@ -54,7 +54,7 @@ namespace aoc_2021_csharp
                 }
             }
 
-            // look for overlapping beacons / segments / something... I'm not really sure the best way to find them
+            // look for overlapping beacons, based on the distances we calculated
             for (int i = 0; i < scanners.Count() - 1; i++)
             {
                 for (int j = i + 1; j < scanners.Count(); j++)
@@ -77,7 +77,6 @@ namespace aoc_2021_csharp
                     }
 
                     // `q2` appears to successfully find common beacons between two scanners `a` and `b`
-                    var foo = "bar";
 
                     // this loop pairs beacons between scanner `a` and `b` based on having 11+ distances in common
                     for (int k = 0; k < a.Beacons.Count; k++)
@@ -91,6 +90,8 @@ namespace aoc_2021_csharp
                                 .Intersect(b.Beacons[l].Distances)
                                 .ToList();
 
+                            // TODO: try every rotation & translation until the beacons line up perfectly
+
                             if (query.Count > 10)
                             {
                                 //Console.WriteLine($"scanner {a.Id} & scanner {b.Id}");
@@ -98,8 +99,6 @@ namespace aoc_2021_csharp
                             }
                         }
                     }
-
-                    var bar = "baz";
                 }
             }
 
