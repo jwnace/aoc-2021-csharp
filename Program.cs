@@ -64,8 +64,8 @@
             // new Day20().Part1();
             // new Day20().Part2();
 
-            // new Day21().Part1();
-            // new Day21().Part2();
+            new Day21().Part1();
+            new Day21().Part2();
 
             // new Day22().Part1();
             // new Day22().Part2();
