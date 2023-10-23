@@ -9,6 +9,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{FA7489B4
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "aoc-2021-csharp", "src\aoc-2021-csharp\aoc-2021-csharp.csproj", "{55891900-532F-4E87-A847-E3E860E9192D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "aoc-2021-csharp-tests", "tests\aoc-2021-csharp-tests\aoc-2021-csharp-tests.csproj", "{EA8CBE0E-C6B2-404B-A5E4-FBB40630EEC4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -19,6 +21,10 @@ Global
 		{55891900-532F-4E87-A847-E3E860E9192D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{55891900-532F-4E87-A847-E3E860E9192D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{55891900-532F-4E87-A847-E3E860E9192D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EA8CBE0E-C6B2-404B-A5E4-FBB40630EEC4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA8CBE0E-C6B2-404B-A5E4-FBB40630EEC4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EA8CBE0E-C6B2-404B-A5E4-FBB40630EEC4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EA8CBE0E-C6B2-404B-A5E4-FBB40630EEC4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -28,5 +34,6 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{55891900-532F-4E87-A847-E3E860E9192D} = {566150C0-3EF9-4F6D-BC1C-14E37260EBC9}
+		{EA8CBE0E-C6B2-404B-A5E4-FBB40630EEC4} = {FA7489B4-50C3-433B-B509-3405E244BF4A}
 	EndGlobalSection
 EndGlobal
