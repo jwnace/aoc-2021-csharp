@@ -1,0 +1,31 @@
+// Global using directives
+
+global using System;
+global using System.Threading;
+global using System.Threading.Tasks;
+global using aoc_2021_csharp.Common;
+global using aoc_2021_csharp.Day01;
+global using aoc_2021_csharp.Day02;
+global using aoc_2021_csharp.Day03;
+global using aoc_2021_csharp.Day04;
+global using aoc_2021_csharp.Day05;
+global using aoc_2021_csharp.Day06;
+global using aoc_2021_csharp.Day07;
+global using aoc_2021_csharp.Day08;
+global using aoc_2021_csharp.Day09;
+global using aoc_2021_csharp.Day10;
+global using aoc_2021_csharp.Day11;
+global using aoc_2021_csharp.Day12;
+global using aoc_2021_csharp.Day13;
+global using aoc_2021_csharp.Day14;
+global using aoc_2021_csharp.Day15;
+global using aoc_2021_csharp.Day16;
+global using aoc_2021_csharp.Day17;
+global using aoc_2021_csharp.Day18;
+global using aoc_2021_csharp.Day19;
+global using aoc_2021_csharp.Day20;
+global using aoc_2021_csharp.Day21;
+global using aoc_2021_csharp.Day22;
+global using aoc_2021_csharp.Day23;
+global using aoc_2021_csharp.Day24;
+global using aoc_2021_csharp.Day25;

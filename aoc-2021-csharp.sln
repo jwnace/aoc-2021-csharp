@@ -3,7 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.32002.185
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "aoc-2021-csharp", "aoc-2021-csharp.csproj", "{2AA0A30C-FCE5-4716-9A06-5D919502CBD5}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{566150C0-3EF9-4F6D-BC1C-14E37260EBC9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{FA7489B4-50C3-433B-B509-3405E244BF4A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "aoc-2021-csharp", "src\aoc-2021-csharp\aoc-2021-csharp.csproj", "{55891900-532F-4E87-A847-E3E860E9192D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,15 +15,18 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{2AA0A30C-FCE5-4716-9A06-5D919502CBD5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2AA0A30C-FCE5-4716-9A06-5D919502CBD5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2AA0A30C-FCE5-4716-9A06-5D919502CBD5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2AA0A30C-FCE5-4716-9A06-5D919502CBD5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{55891900-532F-4E87-A847-E3E860E9192D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{55891900-532F-4E87-A847-E3E860E9192D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{55891900-532F-4E87-A847-E3E860E9192D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{55891900-532F-4E87-A847-E3E860E9192D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E5BC9E25-BC1F-4A22-AF8F-19BF3AAB2D0D}
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{55891900-532F-4E87-A847-E3E860E9192D} = {566150C0-3EF9-4F6D-BC1C-14E37260EBC9}
 	EndGlobalSection
 EndGlobal
