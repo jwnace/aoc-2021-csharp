@@ -7,7 +7,6 @@ namespace aoc_2021_csharp.Day11;
 public static class Day11
 {
     private static readonly string[] Input = File.ReadAllLines("Day11/day11.txt");
-    private static readonly List<List<Octopus>> Grid = Input.Select(x => x.Select(y => new Octopus(y.ToInt())).ToList()).ToList();
 
     public static int Part1() => Run(1);
 
@@ -15,23 +14,24 @@ public static class Day11
 
     private static int Run(int part)
     {
+        var grid = Input.Select(x => x.Select(y => new Octopus(y.ToInt())).ToList()).ToList();
         var count = 0;
 
         for (var step = 1; step < int.MaxValue; step++)
         {
             // increase the energy level of every octopus
-            Grid.SelectMany(x => x).ToList().ForEach(x => x.EnergyLevel++);
+            grid.SelectMany(x => x).ToList().ForEach(x => x.EnergyLevel++);
 
             // process all the flashes for the current step (keep going until all the energy levels are <= 9)
-            while (Grid.SelectMany(x => x).Any(x => x.EnergyLevel > 9))
+            while (grid.SelectMany(x => x).Any(x => x.EnergyLevel > 9))
             {
-                for (var i = 0; i < Grid.Count(); i++)
+                for (var i = 0; i < grid.Count(); i++)
                 {
-                    for (var j = 0; j < Grid[i].Count(); j++)
+                    for (var j = 0; j < grid[i].Count(); j++)
                     {
-                        if (Grid[i][j].EnergyLevel > 9)
+                        if (grid[i][j].EnergyLevel > 9)
                         {
-                            Flash(i, j);
+                            Flash(i, j, grid);
                             count++;
                         }
                     }
@@ -42,9 +42,8 @@ public static class Day11
             {
                 return count;
             }
-            else if (part == 2 && Grid.All(r => r.All(c => c.EnergyLevel == 0)))
+            else if (part == 2 && grid.All(r => r.All(c => c.EnergyLevel == 0)))
             {
-                throw new Exception("This is returning the wrong answer!");
                 return step;
             }
         }
@@ -52,7 +51,7 @@ public static class Day11
         throw new Exception("No solution found!");
     }
 
-    private static void Flash(int i, int j)
+    private static void Flash(int i, int j, List<List<Octopus>> grid)
     {
         // increment all neighbors by 1
         var neighbors = new List<(int, int)>
@@ -64,7 +63,7 @@ public static class Day11
 
         neighbors.ForEach(x =>
         {
-            var neighbor = Grid.ElementAtOrDefault(x.Item1)?.ElementAtOrDefault(x.Item2);
+            var neighbor = grid.ElementAtOrDefault(x.Item1)?.ElementAtOrDefault(x.Item2);
 
             if (neighbor != null && neighbor.EnergyLevel != 0)
             {
@@ -72,7 +71,7 @@ public static class Day11
             }
         });
 
-        Grid[i][j].EnergyLevel = 0;
+        grid[i][j].EnergyLevel = 0;
     }
 }
 
