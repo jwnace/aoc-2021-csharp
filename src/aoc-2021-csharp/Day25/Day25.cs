@@ -7,17 +7,21 @@ public static class Day25
 {
     private static readonly string[] Input = File.ReadAllLines("Day25/day25.txt");
 
-    public static int Part1()
+    public static int Part1() => Solve1(Input);
+
+    public static int Part2() => Solve2(Input);
+
+    private static int Solve1(string[] input)
     {
         var grid = new Dictionary<(int, int), char>();
-        var maxRow = Input.Length - 1;
-        var maxCol = Input[0].Length - 1;
+        var maxRow = input.Length - 1;
+        var maxCol = input[0].Length - 1;
 
-        for (var r = 0; r < Input.Length; r++)
+        for (var r = 0; r < input.Length; r++)
         {
-            for (var c = 0; c < Input[r].Length; c++)
+            for (var c = 0; c < input[r].Length; c++)
             {
-                grid[(r, c)] = Input[r][c];
+                grid[(r, c)] = input[r][c];
             }
         }
 
@@ -69,5 +73,8 @@ public static class Day25
         return step;
     }
 
-    public static int Part2() => 2;
+    private static int Solve2(string[] input)
+    {
+        throw new NotImplementedException();
+    }
 }
