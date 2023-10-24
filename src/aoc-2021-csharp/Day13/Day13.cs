@@ -8,11 +8,11 @@ public static class Day13
 {
     private static readonly string[] Input = File.ReadAllLines("Day13/day13.txt");
 
-    public static int Part1() => Run(1);
+    public static int Part1() => Run(1).Count;
 
-    public static int Part2() => Run(2);
+    public static string Part2() => Run(2).Text;
 
-    private static int Run(int part)
+    private static (int Count, string Text) Run(int part)
     {
         var grid = new Grid();
         var folds = new List<Point>();
@@ -55,16 +55,13 @@ public static class Day13
 
             if (part == 1 && i == 0)
             {
-                return grid.Points.GroupBy(p => new { p.X, p.Y }).Count();
+                return (grid.Points.GroupBy(p => new { p.X, p.Y }).Count(), "");
             }
         }
 
         if (part == 2)
         {
-            // Console.WriteLine($"Day 13, Part 2: ");
-            // Console.WriteLine(grid);
-            // TODO: this needs to return a string instead of an int
-            return -1;
+            return (-1, grid.ToString());
         }
 
         throw new Exception("No solution found!");
@@ -92,6 +89,8 @@ public static class Day13
 
             for (var row = 0; row <= this.Points.Max(p => p.Y); row++)
             {
+                result += Environment.NewLine;
+
                 for (var col = 0; col <= this.Points.Max(p => p.X); col++)
                 {
                     if (this.Points.Any(p => p.X == col && p.Y == row))
@@ -103,8 +102,6 @@ public static class Day13
                         result += " ";
                     }
                 }
-
-                result += Environment.NewLine;
             }
 
             return result;
