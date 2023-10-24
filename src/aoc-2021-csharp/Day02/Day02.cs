@@ -1,5 +1,3 @@
-using System.IO;
-
 namespace aoc_2021_csharp.Day02;
 
 public static class Day02
