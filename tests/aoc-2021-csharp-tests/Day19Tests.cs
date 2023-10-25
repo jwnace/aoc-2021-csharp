@@ -147,13 +147,13 @@ public class Day19Tests
             30,-46,-14
             """;
 
-        Day19.Part1().Should().Be(79);
+        Day19.Solve1(input).Should().Be(79);
     }
 
     [Test]
     public void Part1_ReturnsCorrectAnswer()
     {
-        Day19.Part1().Should().Be(0);
+        Day19.Part1().Should().Be(414);
     }
 
     [Test]

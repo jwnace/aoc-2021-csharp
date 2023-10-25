@@ -5,6 +5,16 @@ public record Position(int X, int Y, int Z)
     public static Position operator +(Position position, Position other) =>
         new(position.X + other.X, position.Y + other.Y, position.Z + other.Z);
 
+    public static Position operator -(Position position, Position other) =>
+        new(position.X - other.X, position.Y - other.Y, position.Z - other.Z);
+
+    public Position Transform(Transformation transformation)
+    {
+        var (rotX, flipX, rotY, flipY, rotZ, flipZ) = transformation;
+
+        return RotateX(rotX).FlipX(flipX).RotateY(rotY).FlipY(flipY).RotateZ(rotZ).FlipZ(flipZ);
+    }
+
     public Position RotateX(int xRot)
     {
         return xRot switch
