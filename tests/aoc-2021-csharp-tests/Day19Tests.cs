@@ -305,6 +305,6 @@ public class Day19Tests
     [Test]
     public void Part2_ReturnsCorrectAnswer()
     {
-        Day19.Part2().Should().Be(0);
+        Day19.Part2().Should().Be(13000);
     }
 }
