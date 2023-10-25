@@ -11,11 +11,10 @@ public record Position(int X, int Y, int Z)
     public Position Transform(Transformation transformation)
     {
         var (rotX, flipX, rotY, flipY, rotZ, flipZ) = transformation;
-
         return RotateX(rotX).FlipX(flipX).RotateY(rotY).FlipY(flipY).RotateZ(rotZ).FlipZ(flipZ);
     }
 
-    public Position RotateX(int xRot)
+    private Position RotateX(int xRot)
     {
         return xRot switch
         {
@@ -27,7 +26,7 @@ public record Position(int X, int Y, int Z)
         };
     }
 
-    public Position RotateY(int yRot)
+    private Position RotateY(int yRot)
     {
         return yRot switch
         {
@@ -39,7 +38,7 @@ public record Position(int X, int Y, int Z)
         };
     }
 
-    public Position RotateZ(int zRot)
+    private Position RotateZ(int zRot)
     {
         return zRot switch
         {
@@ -51,7 +50,7 @@ public record Position(int X, int Y, int Z)
         };
     }
 
-    public Position FlipX(int xFlip)
+    private Position FlipX(int xFlip)
     {
         return xFlip switch
         {
@@ -61,7 +60,7 @@ public record Position(int X, int Y, int Z)
         };
     }
 
-    public Position FlipY(int yFlip)
+    private Position FlipY(int yFlip)
     {
         return yFlip switch
         {
@@ -71,7 +70,7 @@ public record Position(int X, int Y, int Z)
         };
     }
 
-    public Position FlipZ(int zFlip)
+    private Position FlipZ(int zFlip)
     {
         return zFlip switch
         {

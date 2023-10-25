@@ -14,8 +14,9 @@ public static class Day19
     public static int Solve1(string input)
     {
         var scanners = ParseScanners(input);
-        var distinctBeacons = new HashSet<Position>();
-        scanners[0].Beacons.ForEach(b => distinctBeacons.Add(b.Position));
+        var beaconDistances = CalculateDistances(scanners);
+        // var distinctBeacons = new HashSet<Position>();
+        // scanners[0].Beacons.ForEach(b => distinctBeacons.Add(b.Position));
 
         var scanner = scanners[0];
         // foreach (var scanner in scanners)
@@ -29,7 +30,7 @@ public static class Day19
                     continue;
                 }
 
-                var commonBeacons = GetCommonBeacons(scanner, other);
+                var commonBeacons = GetCommonBeacons(scanner, other, beaconDistances);
 
                 // only consider pairs of scanners that have at least 12 beacons in common
                 if (commonBeacons.Count < 12)
@@ -62,18 +63,16 @@ public static class Day19
                     // transform all of the beacons known to scanner 2 to match scanner 1
                     foreach (var beacon in other.Beacons)
                     {
-                        var reverse = transformation!.Reverse();
-
                         var p5 = other.Position! - beacon.Position.Transform(transformation);
 
-                        if (distinctBeacons.Add(p5))
-                        {
+                        // if (distinctBeacons.Add(p5))
+                        // {
                             // throw new Exception($"Failed to add beacon at {beacon.Position.Transform(reverse)}");
                             scanner.Beacons.Add(new Beacon(p5));
-                        }
+                        // }
                     }
 
-                    CalculateDistances(scanners);
+                    beaconDistances = CalculateDistances(scanners);
 
                     continue;
                 }
@@ -81,20 +80,21 @@ public static class Day19
                 {
                     // Console.WriteLine($"Failed to calculate position of scanner {other.Id}");
                     // Console.WriteLine(string.Join("\n", distinctBeacons.Select(b => $"{b.X},{b.Y},{b.Z}")));
-                    return distinctBeacons.Count;
+                    // return distinctBeacons.Count;
                 }
             }
         }
 
         // Console.WriteLine(string.Join("\n", distinctBeacons.Select(b => $"{b.X},{b.Y},{b.Z}")));
-        return distinctBeacons.Count;
+        return scanners[0].Beacons.Count;
     }
 
     public static int Solve2(string input)
     {
         var scanners = ParseScanners(input);
-        var distinctBeacons = new HashSet<Position>();
-        scanners[0].Beacons.ForEach(b => distinctBeacons.Add(b.Position));
+        var beaconDistances = CalculateDistances(scanners);
+        // var distinctBeacons = new HashSet<Position>();
+        // scanners[0].Beacons.ForEach(b => distinctBeacons.Add(b.Position));
 
         var scanner = scanners[0];
         // foreach (var scanner in scanners)
@@ -108,7 +108,7 @@ public static class Day19
                     continue;
                 }
 
-                var commonBeacons = GetCommonBeacons(scanner, other);
+                var commonBeacons = GetCommonBeacons(scanner, other, beaconDistances);
 
                 // only consider pairs of scanners that have at least 12 beacons in common
                 if (commonBeacons.Count < 12)
@@ -141,18 +141,16 @@ public static class Day19
                     // transform all of the beacons known to scanner 2 to match scanner 1
                     foreach (var beacon in other.Beacons)
                     {
-                        var reverse = transformation!.Reverse();
-
                         var p5 = other.Position! - beacon.Position.Transform(transformation);
 
-                        if (distinctBeacons.Add(p5))
-                        {
+                        // if (distinctBeacons.Add(p5))
+                        // {
                             // throw new Exception($"Failed to add beacon at {beacon.Position.Transform(reverse)}");
                             scanner.Beacons.Add(new Beacon(p5));
-                        }
+                        // }
                     }
 
-                    CalculateDistances(scanners);
+                    beaconDistances = CalculateDistances(scanners);
 
                     continue;
                 }
@@ -273,7 +271,9 @@ public static class Day19
     }
 
     private static List<(Scanner Scanner1, Scanner Scanner2, Position Position1, Position Position2)> GetCommonBeacons(
-        Scanner scanner, Scanner other)
+        Scanner scanner,
+        Scanner other,
+        Dictionary<Beacon, List<int>> beaconDistances)
     {
         var commonBeacons = new List<(Scanner Scanner1, Scanner Scanner2, Position Position1, Position Position2)>();
 
@@ -286,10 +286,10 @@ public static class Day19
                     throw new Exception("How is this possible?");
                 }
 
-                var intersection = beacon.Distances.Intersect(otherBeacon.Distances).ToList();
+                var intersection = beaconDistances[beacon].Intersect(beaconDistances[otherBeacon]).ToList();
 
                 // TODO: why does 10 work?
-                if (beacon.Distances.Intersect(otherBeacon.Distances).Count() >= 10)
+                if (beaconDistances[beacon].Intersect(beaconDistances[otherBeacon]).Count() >= 10)
                 {
                     commonBeacons.Add((scanner, other, beacon.Position, otherBeacon.Position));
                 }
@@ -299,8 +299,9 @@ public static class Day19
         return commonBeacons;
     }
 
-    private static void CalculateDistances(List<Scanner> scanners)
+    private static Dictionary<Beacon, List<int>> CalculateDistances(List<Scanner> scanners)
     {
+        var beaconDistances = new Dictionary<Beacon, List<int>>();
 
         foreach (var scanner in scanners)
         {
@@ -322,15 +323,12 @@ public static class Day19
                     distances.Add(distance);
                 }
 
-                beacon.Distances = distances;
+                beaconDistances[beacon] = distances;
             }
         }
+
+        return beaconDistances;
     }
 
-    private static List<Scanner> ParseScanners(string input)
-    {
-        var scanners = input.Split("\n\n").Select(Scanner.Parse).ToList();
-        CalculateDistances(scanners);
-        return scanners;
-    }
+    private static List<Scanner> ParseScanners(string input) => input.Split("\n\n").Select(Scanner.Parse).ToList();
 }
