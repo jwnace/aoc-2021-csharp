@@ -123,7 +123,7 @@ public class Day23Tests
     }, 44169, TestName = "44169")]
     public void Part2_Example_ReturnsCorrectAnswer(string[] input, int expected)
     {
-        // Day23.Solve2(input).Should().Be(expected);
+        Day23.Solve2(input).Should().Be(expected);
     }
 
     [Test]
