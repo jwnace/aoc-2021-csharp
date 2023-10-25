@@ -498,10 +498,39 @@ public static class Day23
 
     private static bool IsFinalState(StateKey stateKey)
     {
-        return stateKey.Row1 is 2 or 3 && stateKey.Col1 is 3 && stateKey.Row2 is 2 or 3 && stateKey.Col2 is 3 &&
-               stateKey.Row3 is 2 or 3 && stateKey.Col3 is 5 && stateKey.Row4 is 2 or 3 && stateKey.Col4 is 5 &&
-               stateKey.Row5 is 2 or 3 && stateKey.Col5 is 7 && stateKey.Row6 is 2 or 3 && stateKey.Col6 is 7 &&
-               stateKey.Row7 is 2 or 3 && stateKey.Col7 is 9 && stateKey.Row8 is 2 or 3 && stateKey.Col8 is 9;
+        // return stateKey.Row1 is 2 or 3 && stateKey.Col1 is 3 && stateKey.Row2 is 2 or 3 && stateKey.Col2 is 3 &&
+        //        stateKey.Row3 is 2 or 3 && stateKey.Col3 is 5 && stateKey.Row4 is 2 or 3 && stateKey.Col4 is 5 &&
+        //        stateKey.Row5 is 2 or 3 && stateKey.Col5 is 7 && stateKey.Row6 is 2 or 3 && stateKey.Col6 is 7 &&
+        //        stateKey.Row7 is 2 or 3 && stateKey.Col7 is 9 && stateKey.Row8 is 2 or 3 && stateKey.Col8 is 9;
+
+        var (row1, col1, row2, col2, row3, col3, row4, col4, row5, col5, row6, col6, row7, col7, row8, col8) = stateKey;
+
+        if (row1 == 1 || row2 == 1 || row3 == 1 || row4 == 1 || row5 == 1 || row6 == 1 || row7 == 1 || row8 == 1)
+        {
+            return false;
+        }
+
+        if (col1 != 3 || col2 != 3)
+        {
+            return false;
+        }
+
+        if (col3 != 5 || col4 != 5)
+        {
+            return false;
+        }
+
+        if (col5 != 7 || col6 != 7)
+        {
+            return false;
+        }
+
+        if (col7 != 9 || col8 != 9)
+        {
+            return false;
+        }
+
+        return true;
     }
 
     private static State BuildInitialState(Dictionary<(int Row, int Col), char> grid)
