@@ -1,145 +1,197 @@
 using System.Collections.Generic;
-using System.IO;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace aoc_2021_csharp.Day19;
 
 public static class Day19
 {
-    private static readonly string[] Input = File.ReadAllLines("Day19/day19.txt");
+    private static readonly string Input = File.ReadAllText("Day19/day19.txt").Trim();
 
-    public static int Part1()
+    public static int Part1() => Solve1(Input);
+
+    public static int Part2() => Solve2(Input);
+
+    public static int Solve1(string input)
     {
-        var scanners = new List<Scanner>();
+        var scanners = GetScanners(input);
+        return CountBeacons(scanners);
+    }
 
-        // populate scanners and the beacons they can detect from the input
-        foreach (var line in Input)
+    public static int Solve2(string input)
+    {
+        var scanners = GetScanners(input);
+        return GetMaximumDistance(scanners);
+    }
+
+    private static List<Scanner> GetScanners(string input)
+    {
+        var scanners = ParseScanners(input);
+        var beaconDistances = CalculateDistances(scanners);
+        var knownScanner = scanners.Single(s => s.Id == 0);
+
+        while (AnyScannerHasAnUnknownPosition(scanners))
         {
-            if (line.Contains("---"))
+            foreach (var other in scanners)
             {
-                scanners.Add(new Scanner { Id = int.Parse(line.Split(' ')[2]) });
+                if (knownScanner == other || other.Position is not null)
+                {
+                    continue;
+                }
+
+                var commonBeacons = GetCommonBeacons(knownScanner, other, beaconDistances).ToList();
+
+                if (commonBeacons.Count < 12)
+                {
+                    continue;
+                }
+
+                if (!TryLocateOtherScanner(knownScanner, commonBeacons, out var location, out var transformation))
+                {
+                    continue;
+                }
+
+                other.Position = location;
+
+                foreach (var beacon in other.Beacons)
+                {
+                    var position = other.Position - beacon.Position.Transform(transformation);
+                    knownScanner.Beacons.Add(new Beacon(position));
+                }
+
+                beaconDistances = CalculateDistances(scanners);
+            }
+        }
+
+        return scanners;
+    }
+
+    private static List<Scanner> ParseScanners(string input) => input.Split("\n\n").Select(Scanner.Parse).ToList();
+
+    private static int CountBeacons(IEnumerable<Scanner> scanners) =>
+        scanners.Single(s => s.Id == 0).Beacons.Count;
+
+    private static int GetMaximumDistance(IReadOnlyCollection<Scanner> scanners) =>
+        scanners.Max(outer => scanners.Max(outer.DistanceTo));
+
+    private static bool AnyScannerHasAnUnknownPosition(IEnumerable<Scanner> scanners) =>
+        scanners.Any(x => x.Position is null);
+
+    private static bool TryLocateOtherScanner(
+        Scanner knownScanner,
+        IEnumerable<(Position Position1, Position Position2)> commonBeacons,
+        [NotNullWhen(true)] out Position? position,
+        [NotNullWhen(true)] out Transformation? transformation)
+    {
+        var allOrientations = commonBeacons
+            .Select(x => (
+                x.Position1,
+                TransformedPositions: GetTransformedPositions(x.Position2)))
+            .ToArray();
+
+        // TODO: why does `512` work?
+        for (var i = 0; i < 512; i++)
+        {
+            var orientation = allOrientations
+                .Select(f => (f.Position1, TransformedPosition: f.TransformedPositions.ElementAt(i)));
+
+            var possibleScannerPositions = orientation
+                .Select(b => (
+                    ScannerPosition: b.Position1 + b.TransformedPosition.TransformedPosition,
+                    transformation: b.TransformedPosition.Transformation)
+                )
+                .Distinct()
+                .ToList();
+
+            if (possibleScannerPositions.Count != 1)
+            {
                 continue;
             }
 
-            if (string.IsNullOrWhiteSpace(line))
-            {
-                continue;
-            }
-
-            var values = line.Split(',').Select(x => int.Parse(x)).ToList();
-            var x = values[0];
-            var y = values[1];
-            var z = values[2];
-
-            var scanner = scanners.Last();
-            scanner.Beacons.Add(new Beacon(x, y, z));
+            position = knownScanner.Position! + possibleScannerPositions.First().ScannerPosition;
+            transformation = possibleScannerPositions.First().transformation;
+            return true;
         }
 
-        // populate distances to help find matches
-        foreach (var scanner in scanners)
+        position = default;
+        transformation = default;
+        return false;
+    }
+
+    private static List<(Position TransformedPosition, Transformation Transformation)> GetTransformedPositions(
+        Position position)
+    {
+        var transformedPositions = new List<(Position TransformedPosition, Transformation Transformation)>();
+
+        // TODO: there should only be 24 orientations, not 512
+        for (var xRot = 0; xRot < 4; xRot++)
         {
-            for (var i = 0; i < scanner.Beacons.Count - 1; i++)
+            for (var xFlip = 0; xFlip < 2; xFlip++)
             {
-                for (var j = i + 1; j < scanner.Beacons.Count; j++)
+                for (var yRot = 0; yRot < 4; yRot++)
                 {
-                    var a = scanner.Beacons[i];
-                    var b = scanner.Beacons[j];
-
-                    var distance = Math.Sqrt(Math.Pow(a.Position.X - b.Position.X, 2) + Math.Pow(a.Position.Y - b.Position.Y, 2) + Math.Pow(a.Position.Z - b.Position.Z, 2));
-
-                    a.Distances.Add(distance);
-                    b.Distances.Add(distance);
-                }
-            }
-        }
-
-        // look for overlapping beacons, based on the distances we calculated
-        for (var i = 0; i < scanners.Count() - 1; i++)
-        {
-            for (var j = i + 1; j < scanners.Count(); j++)
-            {
-                var a = scanners[i];
-                var b = scanners[j];
-
-                var q1 = a.Beacons.SelectMany(x => x.Distances)
-                    .Intersect(b.Beacons.SelectMany(y => y.Distances))
-                    .ToList();
-
-                var q2 = a.Beacons.Where(x =>
-                    b.Beacons.Any(y => x.Distances.Intersect(y.Distances).Count() > 10)
-                ).ToList();
-
-                if (q2.Count() > 0)
-                {
-                    // Console.WriteLine($"scanner {a.Id} & scanner {b.Id}");
-                    // Console.WriteLine($"common beacons: {q2.Count()}");
-                }
-
-                // `q2` appears to successfully find common beacons between two scanners `a` and `b`
-
-                // this loop pairs beacons between scanner `a` and `b` based on having 11+ distances in common
-                for (var k = 0; k < a.Beacons.Count; k++)
-                {
-                    for (var l = 0; l < b.Beacons.Count; l++)
+                    for (var yFlip = 0; yFlip < 2; yFlip++)
                     {
-                        var c = a.Beacons[k];
-                        var d = b.Beacons[l];
-
-                        var query = a.Beacons[k].Distances
-                            .Intersect(b.Beacons[l].Distances)
-                            .ToList();
-
-                        // TODO: try every rotation & translation until the beacons line up perfectly
-
-                        if (query.Count > 10)
+                        for (var zRot = 0; zRot < 4; zRot++)
                         {
-                            //Console.WriteLine($"scanner {a.Id} & scanner {b.Id}");
-                            // Console.WriteLine($"common beacon: a -> {c.Position}, b -> {d.Position}");
+                            for (var zFlip = 0; zFlip < 2; zFlip++)
+                            {
+                                var transformation = new Transformation(xRot, xFlip, yRot, yFlip, zRot, zFlip);
+                                var transformedPosition = position.Transform(transformation);
+
+                                transformedPositions.Add((transformedPosition, transformation));
+                            }
                         }
                     }
                 }
             }
         }
 
-        return 1;
+        return transformedPositions;
     }
 
-    public static int Part2() => 2;
-
-    private class Scanner
+    private static IEnumerable<(Position Position1, Position Position2)> GetCommonBeacons(
+        Scanner scanner,
+        Scanner other,
+        IReadOnlyDictionary<Beacon, List<int>> distances)
     {
-        public int Id { get; set; }
-        public List<Beacon> Beacons { get; set; } = new List<Beacon>();
-    }
-
-    private class Beacon
-    {
-        public Guid Id { get; set; } = Guid.NewGuid();
-        public Point Position { get; set; }
-        public List<double> Distances { get; set; } = new List<double>();
-
-        public Beacon(int x, int y, int z)
+        foreach (var beacon in scanner.Beacons)
         {
-            Position = new Point(x, y, z);
+            foreach (var otherBeacon in other.Beacons)
+            {
+                // TODO: why does `>= 10` work?
+                if (distances[beacon].Intersect(distances[otherBeacon]).Count() >= 10)
+                {
+                    yield return (beacon.Position, otherBeacon.Position);
+                }
+            }
         }
     }
 
-    private class Point
+    private static Dictionary<Beacon, List<int>> CalculateDistances(List<Scanner> scanners)
     {
-        public int X { get; set; }
-        public int Y { get; set; }
-        public int Z { get; set; }
+        var beaconDistances = new Dictionary<Beacon, List<int>>();
 
-        public Point(int x, int y, int z)
+        foreach (var scanner in scanners)
         {
-            X = x;
-            Y = y;
-            Z = z;
+            foreach (var beacon in scanner.Beacons)
+            {
+                var distances = new List<int>();
+
+                foreach (var other in scanner.Beacons)
+                {
+                    if (beacon == other)
+                    {
+                        continue;
+                    }
+
+                    distances.Add(beacon.Position.DistanceTo(other.Position));
+                }
+
+                beaconDistances[beacon] = distances;
+            }
         }
 
-        public override string ToString()
-        {
-            return $"({X}, {Y}, {Z})";
-        }
+        return beaconDistances;
     }
 }

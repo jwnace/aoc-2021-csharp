@@ -1,6 +1,7 @@
 // Global using directives
 
 global using System;
+global using System.IO;
 global using System.Threading;
 global using System.Threading.Tasks;
 global using aoc_2021_csharp.Common;

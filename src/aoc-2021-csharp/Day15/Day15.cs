@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.IO;
 
 namespace aoc_2021_csharp.Day15;
 

@@ -1,4 +1,3 @@
-using System.IO;
 using System.Linq;
 
 namespace aoc_2021_csharp.Day07;
