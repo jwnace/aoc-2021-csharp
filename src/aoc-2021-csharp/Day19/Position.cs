@@ -79,4 +79,6 @@ public record Position(int X, int Y, int Z)
             _ => throw new ArgumentOutOfRangeException(nameof(zFlip))
         };
     }
+
+    public int DistanceTo(Position other) => Math.Abs(X - other.X) + Math.Abs(Y - other.Y) + Math.Abs(Z - other.Z);
 }

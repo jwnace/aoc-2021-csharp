@@ -25,4 +25,6 @@ public class Scanner
 
         return new Scanner(id, position, beacons);
     }
+
+    public int DistanceTo(Scanner other) => Position!.DistanceTo(other.Position!);
 }
