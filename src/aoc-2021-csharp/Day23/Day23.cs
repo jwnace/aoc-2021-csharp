@@ -78,6 +78,30 @@ public static class Day23
                     _ => throw new IndexOutOfRangeException("i must be between 0 and 7"),
                 };
 
+                var occupiedSpaces = new (int Row, int Col)[]
+                {
+                    (row1, col1),
+                    (row2, col2),
+                    (row3, col3),
+                    (row4, col4),
+                    (row5, col5),
+                    (row6, col6),
+                    (row7, col7),
+                    (row8, col8),
+                };
+
+                // TODO: handle special logic for if we are already in the hallway
+                // TODO: if we are already in the hallway, we can only move all the way to our final destination
+                if (row == 1 && IsDestinationAvailable(row, col, i, stateKey, occupiedSpaces, out var destination,
+                        out var steps))
+                {
+                    var destinationState = BuildNewState(i, destination, energy, energyCost * steps,
+                        row1, col1, row2, col2, row3, col3, row4, col4, row5, col5, row6, col6, row7, col7, row8, col8);
+
+                    queue.Enqueue(destinationState, energy + energyCost * steps);
+                    continue;
+                }
+
                 var neighbors = new (int Row, int Col)[]
                 {
                     (row - 1, col),
@@ -106,26 +130,16 @@ public static class Day23
                         var down = (Row: neighbor.Row + 1, Col: neighbor.Col);
                         // throw new NotImplementedException("TODO: handle the rules for moving down into a side room from the hallway!!");
 
-                        var occupiedSpaces = new (int Row, int Col)[]
-                        {
-                            (row1, col1),
-                            (row2, col2),
-                            (row3, col3),
-                            (row4, col4),
-                            (row5, col5),
-                            (row6, col6),
-                            (row7, col7),
-                            (row8, col8),
-                        };
-
-                        if (occupiedSpaces.Contains(left) && occupiedSpaces.Contains(right) && occupiedSpaces.Contains(down))
+                        if (occupiedSpaces.Contains(left) && occupiedSpaces.Contains(right) &&
+                            occupiedSpaces.Contains(down))
                         {
                             continue;
                         }
 
                         if (!occupiedSpaces.Contains(left))
                         {
-                            var leftState = BuildNewState(i, left, energy, energyCost * 2, row1, col1, row2, col2, row3, col3,
+                            var leftState = BuildNewState(i, left, energy, energyCost * 2, row1, col1, row2, col2, row3,
+                                col3,
                                 row4, col4, row5, col5, row6, col6, row7, col7, row8, col8);
 
                             queue.Enqueue(leftState, energy + energyCost * 2);
@@ -133,7 +147,8 @@ public static class Day23
 
                         if (!occupiedSpaces.Contains(right))
                         {
-                            var rightState = BuildNewState(i, right, energy, energyCost * 2, row1, col1, row2, col2, row3, col3,
+                            var rightState = BuildNewState(i, right, energy, energyCost * 2, row1, col1, row2, col2,
+                                row3, col3,
                                 row4, col4, row5, col5, row6, col6, row7, col7, row8, col8);
 
                             queue.Enqueue(rightState, energy + energyCost * 2);
@@ -142,7 +157,8 @@ public static class Day23
                         // TODO: this is incomplete... there are more rules about when we're allowed to do this
                         if (!occupiedSpaces.Contains(down) && IsDestinationRoom(down.Col, i, stateKey, occupiedSpaces))
                         {
-                            var downState = BuildNewState(i, down, energy, energyCost * 2, row1, col1, row2, col2, row3, col3,
+                            var downState = BuildNewState(i, down, energy, energyCost * 2, row1, col1, row2, col2, row3,
+                                col3,
                                 row4, col4, row5, col5, row6, col6, row7, col7, row8, col8);
 
                             queue.Enqueue(downState, energy + energyCost * 2);
@@ -162,6 +178,200 @@ public static class Day23
         DrawGrid(grid);
 
         throw new Exception("No solution found!");
+    }
+
+    private static bool IsDestinationAvailable(
+        int row,
+        int col,
+        int i,
+        StateKey stateKey,
+        (int Row, int Col)[] occupiedSpaces,
+        out (int Row, int Col) destination,
+        out int steps)
+    {
+        var (row1, col1, row2, col2, row3, col3, row4, col4, row5, col5, row6, col6, row7, col7, row8, col8) = stateKey;
+
+        switch (i)
+        {
+            case 0:
+            {
+                var destCol = 3;
+
+                if (!occupiedSpaces.Contains((3, 3)) && !occupiedSpaces.Contains((2, 3)) && !occupiedSpaces.Any(s => s.Row == 1 && s.Col >= destCol && s.Col < col) && !occupiedSpaces.Any(s => s.Row == 1 && s.Col <= destCol && s.Col > col))
+                {
+                    destination = (3, 3);
+                    steps = GetManhattanDistance((row, col), destination);
+                    return true;
+                }
+
+                if (!occupiedSpaces.Contains((2, 3)) && row2 is 3 && col2 is 3 && !occupiedSpaces.Any(s => s.Row == 1 && s.Col >= destCol && s.Col < col) && !occupiedSpaces.Any(s => s.Row == 1 && s.Col <= destCol && s.Col > col))
+                {
+                    destination = (2, 3);
+                    steps = GetManhattanDistance((row, col), destination);
+                    return true;
+                }
+
+                break;
+            }
+            case 1:
+            {
+                var destCol = 3;
+
+                if (!occupiedSpaces.Contains((3, 3)) && !occupiedSpaces.Contains((2, 3)) && !occupiedSpaces.Any(s => s.Row == 1 && s.Col >= destCol && s.Col < col) && !occupiedSpaces.Any(s => s.Row == 1 && s.Col <= destCol && s.Col > col))
+                {
+                    destination = (3, 3);
+                    steps = GetManhattanDistance((row, col), destination);
+                    return true;
+                }
+
+                if (!occupiedSpaces.Contains((2, 3)) && row1 is 3 && col1 is 3 && !occupiedSpaces.Any(s => s.Row == 1 && s.Col >= destCol && s.Col < col) && !occupiedSpaces.Any(s => s.Row == 1 && s.Col <= destCol && s.Col > col))
+                {
+                    destination = (2, 3);
+                    steps = GetManhattanDistance((row, col), destination);
+                    return true;
+                }
+
+                break;
+            }
+            case 2:
+            {
+                var destCol = 5;
+
+                if (!occupiedSpaces.Contains((3, 5)) && !occupiedSpaces.Contains((2, 5)) && !occupiedSpaces.Any(s => s.Row == 1 && s.Col >= destCol && s.Col < col) && !occupiedSpaces.Any(s => s.Row == 1 && s.Col <= destCol && s.Col > col))
+                {
+                    destination = (3, 5);
+                    steps = GetManhattanDistance((row, col), destination);
+                    return true;
+                }
+
+                if (!occupiedSpaces.Contains((2, 5)) && row4 is 3 && col4 is 5 && !occupiedSpaces.Any(s => s.Row == 1 && s.Col >= destCol && s.Col < col) && !occupiedSpaces.Any(s => s.Row == 1 && s.Col <= destCol && s.Col > col))
+                {
+                    destination = (2, 5);
+                    steps = GetManhattanDistance((row, col), destination);
+                    return true;
+                }
+
+                break;
+            }
+            case 3:
+            {
+                var destCol = 5;
+
+                if (!occupiedSpaces.Contains((3, 5)) && !occupiedSpaces.Contains((2, 5)) && !occupiedSpaces.Any(s => s.Row == 1 && s.Col >= destCol && s.Col < col) && !occupiedSpaces.Any(s => s.Row == 1 && s.Col <= destCol && s.Col > col))
+                {
+                    destination = (3, 5);
+                    steps = GetManhattanDistance((row, col), destination);
+                    return true;
+                }
+
+                if (!occupiedSpaces.Contains((2, 5)) && row3 is 3 && col3 is 5 && !occupiedSpaces.Any(s => s.Row == 1 && s.Col >= destCol && s.Col < col) && !occupiedSpaces.Any(s => s.Row == 1 && s.Col <= destCol && s.Col > col))
+                {
+                    destination = (2, 5);
+                    steps = GetManhattanDistance((row, col), destination);
+                    return true;
+                }
+
+                break;
+            }
+            case 4:
+            {
+                var destCol = 7;
+
+                if (!occupiedSpaces.Contains((3, 7)) && !occupiedSpaces.Contains((2, 7)) && !occupiedSpaces.Any(s => s.Row == 1 && s.Col >= destCol && s.Col < col) && !occupiedSpaces.Any(s => s.Row == 1 && s.Col <= destCol && s.Col > col))
+                {
+                    destination = (3, 7);
+                    steps = GetManhattanDistance((row, col), destination);
+                    return true;
+                }
+
+                if (!occupiedSpaces.Contains((2, 7)) && row6 is 3 && col6 is 7 && !occupiedSpaces.Any(s => s.Row == 1 && s.Col >= destCol && s.Col < col) && !occupiedSpaces.Any(s => s.Row == 1 && s.Col <= destCol && s.Col > col))
+                {
+                    destination = (2, 7);
+                    steps = GetManhattanDistance((row, col), destination);
+                    return true;
+                }
+
+                break;
+            }
+            case 5:
+            {
+                var destCol = 7;
+
+                if (!occupiedSpaces.Contains((3, 7)) && !occupiedSpaces.Contains((2, 7)) && !occupiedSpaces.Any(s => s.Row == 1 && s.Col >= destCol && s.Col < col) && !occupiedSpaces.Any(s => s.Row == 1 && s.Col <= destCol && s.Col > col))
+                {
+                    destination = (3, 7);
+                    steps = GetManhattanDistance((row, col), destination);
+                    return true;
+                }
+
+                if (!occupiedSpaces.Contains((2, 7)) && row5 is 3 && col5 is 7 && !occupiedSpaces.Any(s => s.Row == 1 && s.Col >= destCol && s.Col < col) && !occupiedSpaces.Any(s => s.Row == 1 && s.Col <= destCol && s.Col > col))
+                {
+                    destination = (2, 7);
+                    steps = GetManhattanDistance((row, col), destination);
+                    return true;
+                }
+
+                break;
+            }
+            case 6:
+            {
+                var destCol = 9;
+
+                if (!occupiedSpaces.Contains((3, 9)) && !occupiedSpaces.Contains((2, 9)) && !occupiedSpaces.Any(s => s.Row == 1 && s.Col >= destCol && s.Col < col) && !occupiedSpaces.Any(s => s.Row == 1 && s.Col <= destCol && s.Col > col))
+                {
+                    destination = (3, 9);
+                    steps = GetManhattanDistance((row, col), destination);
+                    return true;
+                }
+
+                if (!occupiedSpaces.Contains((2, 9)) && row8 is 3 && col8 is 9 && !occupiedSpaces.Any(s => s.Row == 1 && s.Col >= destCol && s.Col < col) && !occupiedSpaces.Any(s => s.Row == 1 && s.Col <= destCol && s.Col > col))
+                {
+                    destination = (2, 9);
+                    steps = GetManhattanDistance((row, col), destination);
+                    return true;
+                }
+
+                break;
+            }
+            case 7:
+            {
+                var destCol = 9;
+
+                if (!occupiedSpaces.Contains((3, 9)) && !occupiedSpaces.Contains((2, 9)) && !occupiedSpaces.Any(s => s.Row == 1 && s.Col >= destCol && s.Col < col) && !occupiedSpaces.Any(s => s.Row == 1 && s.Col <= destCol && s.Col > col))
+                {
+                    destination = (3, 9);
+                    steps = GetManhattanDistance((row, col), destination);
+                    return true;
+                }
+
+                if (!occupiedSpaces.Contains((2, 9)) && row7 is 3 && col7 is 9 && !occupiedSpaces.Any(s => s.Row == 1 && s.Col >= destCol && s.Col < col) && !occupiedSpaces.Any(s => s.Row == 1 && s.Col <= destCol && s.Col > col))
+                {
+                    destination = (2, 9);
+                    steps = GetManhattanDistance((row, col), destination);
+                    return true;
+                }
+
+                break;
+            }
+            default:
+            {
+                throw new IndexOutOfRangeException("i must be between 0 and 7");
+            }
+        }
+
+        destination = (0, 0);
+        steps = 0;
+        return false;
+    }
+
+    private static int GetManhattanDistance((int Row, int Col) first, (int Row, int Col) second)
+    {
+        return Math.Abs(first.Row - second.Row) + Math.Abs(first.Col - second.Col);
+    }
+
+    public static int Solve2(string[] input)
+    {
+        throw new NotImplementedException();
     }
 
     private static bool IsDestinationRoom(int col, int i, StateKey stateKey, (int Row, int Col)[] occupiedSpaces)
@@ -347,23 +557,5 @@ public static class Day23
 
             Console.WriteLine();
         }
-    }
-
-    public static int Solve2(string[] input)
-    {
-        throw new NotImplementedException();
-    }
-}
-
-public record State(int Row1, int Col1, int Row2, int Col2, int Row3, int Col3, int Row4, int Col4, int Row5, int Col5,
-    int Row6, int Col6, int Row7, int Col7, int Row8, int Col8, int Energy);
-
-public record StateKey(int Row1, int Col1, int Row2, int Col2, int Row3, int Col3, int Row4, int Col4, int Row5,
-    int Col5, int Row6, int Col6, int Row7, int Col7, int Row8, int Col8)
-{
-    public StateKey(State state) : this(state.Row1, state.Col1, state.Row2, state.Col2, state.Row3, state.Col3,
-        state.Row4, state.Col4, state.Row5, state.Col5, state.Row6, state.Col6, state.Row7, state.Col7, state.Row8,
-        state.Col8)
-    {
     }
 }
