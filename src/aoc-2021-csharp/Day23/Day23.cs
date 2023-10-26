@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace aoc_2021_csharp.Day23;
 
-public static partial class Day23
+public static class Day23
 {
     private static readonly string[] Input = File.ReadAllLines("Day23/day23.txt");
 
@@ -16,16 +16,12 @@ public static partial class Day23
     public static int Solve1(string[] input)
     {
         var grid = BuildGrid(input);
-        // DrawGrid(grid, Array.Empty<Amphipod>(), Array.Empty<(int Row, int Col)>());
-
         var initialState = BuildInitialState(grid);
-        // DrawGrid(grid, initialState.Amphipods, Array.Empty<(int Row, int Col)>());
 
         var seen = new HashSet<State>();
         var queue = new PriorityQueue<State, int>();
         queue.Enqueue(initialState, 0);
 
-        var doorways = new[] { (1, 3), (1, 5), (1, 7), (1, 9), };
         DrawGrid(grid, initialState.Amphipods);
 
         while (queue.Count > 0)
@@ -58,7 +54,8 @@ public static partial class Day23
                 {
                     var index = Array.IndexOf(amphipods, amphipod);
                     var newAmphipod = amphipod with { Row = move.Row, Col = move.Col };
-                    var newAmphipods = amphipods[..index].Append(newAmphipod).Concat(amphipods[(index + 1)..]).ToArray();
+                    var newAmphipods = amphipods[..index].Append(newAmphipod).Concat(amphipods[(index + 1)..])
+                        .ToArray();
                     var newState = new State(newAmphipods, energy + amphipod.EnergyCost * move.Steps);
                     queue.Enqueue(newState, newState.Energy);
                 }
@@ -66,6 +63,58 @@ public static partial class Day23
         }
 
         return -1;
+    }
+
+    private static Dictionary<(int Row, int Col), char> BuildGrid(IReadOnlyList<string> input)
+    {
+        var grid = new Dictionary<(int Row, int Col), char>();
+
+        for (var row = 0; row < input.Count; row++)
+        {
+            for (var col = 0; col < input[row].Length; col++)
+            {
+                grid[(row, col)] = input[row][col];
+            }
+        }
+
+        return grid;
+    }
+
+    private static State BuildInitialState(Dictionary<(int Row, int Col), char> grid)
+    {
+        var amphipods = new List<Amphipod>();
+
+        foreach (var pair in grid)
+        {
+            var (row, col) = pair.Key;
+            var value = pair.Value;
+
+            switch (value)
+            {
+                case 'A':
+                {
+                    amphipods.Add(new Amphipod(row, col, value, 1, 3));
+                    break;
+                }
+                case 'B':
+                {
+                    amphipods.Add(new Amphipod(row, col, value, 10, 5));
+                    break;
+                }
+                case 'C':
+                {
+                    amphipods.Add(new Amphipod(row, col, value, 100, 7));
+                    break;
+                }
+                case 'D':
+                {
+                    amphipods.Add(new Amphipod(row, col, value, 1000, 9));
+                    break;
+                }
+            }
+        }
+
+        return new State(amphipods.ToArray(), 0);
     }
 
     private static IEnumerable<Move> GetAllPossibleMoves(
@@ -146,68 +195,6 @@ public static partial class Day23
             seen.Add(position);
 
             if (position == destination)
-            {
-                move = new Move(row, col, steps);
-                return true;
-            }
-
-            var neighbors = new (int Row, int Col)[]
-            {
-                (row - 1, col),
-                (row + 1, col),
-                (row, col - 1),
-                (row, col + 1),
-            };
-
-            foreach (var neighbor in neighbors)
-            {
-                // don't move into walls
-                if (grid.GetValueOrDefault(neighbor) == '#')
-                {
-                    continue;
-                }
-
-                // don't move into other amphipods
-                if (amphipods.Any(a => a.Row == neighbor.Row && a.Col == neighbor.Col))
-                {
-                    continue;
-                }
-
-                queue.Enqueue((neighbor.Row, neighbor.Col, steps + 1));
-            }
-        }
-
-        move = default;
-        return false;
-    }
-
-    private static bool TryToReachFinalDestination(
-        Amphipod amphipod,
-        (int Row, int Col) finalDestination,
-        Amphipod[] amphipods,
-        IReadOnlyDictionary<(int Row, int Col), char> grid,
-        [NotNullWhen(true)] out Move? move)
-    {
-        var queue = new Queue<(int Row, int Col, int Steps)>();
-        var seen = new HashSet<(int Row, int Col)>();
-
-        queue.Enqueue((amphipod.Row, amphipod.Col, 0));
-
-        while (queue.Any())
-        {
-            var state = queue.Dequeue();
-
-            var (row, col, steps) = state;
-            var position = (row, col);
-
-            if (seen.Contains(position))
-            {
-                continue;
-            }
-
-            seen.Add(position);
-
-            if (position == finalDestination)
             {
                 move = new Move(row, col, steps);
                 return true;
@@ -324,4 +311,38 @@ public static partial class Day23
 
     private static bool IsEmptySpace(int row, int col, IEnumerable<Amphipod> amphipods) =>
         !amphipods.Any(a => a.Row == row && a.Col == col);
+
+    private static void DrawGrid(Dictionary<(int Row, int Col), char> grid, Amphipod[] amphipods)
+    {
+        var minRow = grid.Keys.Min(k => k.Row);
+        var maxRow = grid.Keys.Max(k => k.Row);
+        var minCol = grid.Keys.Min(k => k.Col);
+        var maxCol = grid.Keys.Max(k => k.Col);
+
+        for (var row = minRow; row <= maxRow; row++)
+        {
+            for (var col = minCol; col <= maxCol; col++)
+            {
+                var value = grid.GetValueOrDefault((row, col));
+
+                if (value == '#')
+                {
+                    Console.Write('#');
+                }
+                else if (amphipods.Any(a => a.Row == row && a.Col == col))
+                {
+                    var type = amphipods.First(a => (a.Row, a.Col) == (row, col)).Type;
+                    Console.Write(type);
+                }
+                else
+                {
+                    Console.Write('.');
+                }
+            }
+
+            Console.WriteLine();
+        }
+
+        Console.WriteLine();
+    }
 }
