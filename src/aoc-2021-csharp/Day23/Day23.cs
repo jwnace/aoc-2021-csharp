@@ -13,79 +13,99 @@ public static class Day23
 
     public static int Solve1(string[] input)
     {
+        // build the grid from the input
         var grid = BuildGrid(input);
+        DrawGrid(grid, Array.Empty<Amphipod>(), Array.Empty<(int Row, int Col)>());
+
+        // build the initial state from the grid
         var initialState = BuildInitialState(grid);
+        DrawGrid(grid, initialState.Amphipods, Array.Empty<(int Row, int Col)>());
+
+        // set up a queue and a hashset for BFS
         var seen = new HashSet<State>();
         var queue = new PriorityQueue<State, int>();
         queue.Enqueue(initialState, 0);
 
-        var doorways = new[]
-        {
-            (1, 3),
-            (1, 5),
-            (1, 7),
-            (1, 9),
-        };
+        // build a list of doorways
+        var doorways = new[] { (1, 3), (1, 5), (1, 7), (1, 9), };
+        DrawGrid(grid, initialState.Amphipods, Array.Empty<(int Row, int Col)>());
 
+        // while there are still states in the queue
         while (queue.Count > 0)
         {
+            // get the next state to consider
             var state = queue.Dequeue();
+
+            // pull the details out of the state
             var (amphipods, energy) = state;
 
+            // TODO: double check that this is working as intended
             if (seen.Contains(state))
             {
                 continue;
             }
 
+            // log to the console every 100,000 states
             if (seen.Count % 100_000 == 0)
             {
                 Console.WriteLine($"Seen: {seen.Count,15:N0} | Queue: {queue.Count,15:N0}");
             }
 
+            // mark the current state as seen
             seen.Add(state);
 
+            // if we have reached the final state, return the energy it took to get here
             if (IsFinalState(state))
             {
                 // Console.WriteLine();
-                // DrawGrid(grid, initialState.Amphipods);
-                // Console.WriteLine();
-                // DrawGrid(grid, amphipods);
-                // Console.WriteLine();
+                // DrawGrid(grid, initialState.Amphipods, doorways);
+                Console.WriteLine();
+                DrawGrid(grid, amphipods, Array.Empty<(int Row, int Col)>());
+                Console.WriteLine();
 
                 return energy;
             }
 
-            if (amphipods.Any(a => doorways.Contains((a.Row, a.Col))))
-            {
-                // throw new Exception("Amphipod is in a doorway!");
-            }
+            // TODO: I'm not sure this is relevant anymore
+            // if any amphipods are in a doorway, throw an exception
+            // if (amphipods.Any(a => doorways.Contains((a.Row, a.Col))))
+            // {
+            //     throw new Exception("Amphipod is in a doorway!");
+            // }
 
+            // if we are in an invalid state, skip it
             if (!IsValidState(grid, amphipods))
             {
                 continue;
             }
 
+            // give each amphipod a chance to move
             foreach (var amphipod in amphipods)
             {
-                var (row, col, _, energyCost, _) = amphipod;
+                var (row, col, type, cost, targetCol) = amphipod;
 
+                // if this amphipod is already at its destination, skip it
                 if (IsAtDestination(amphipod, amphipods))
                 {
                     continue;
                 }
 
+                // if this amphipod is in the hallway and its destination is available, move directly to its destination
                 if (row == 1 && IsDestinationAvailable(amphipod, amphipods, out var destination, out var steps))
                 {
-                    if (doorways.Contains(destination))
-                    {
-                        throw new Exception("Destination is a doorway!");
-                    }
+                    // TODO: this should never happen... not sure why this is here
+                    // if the destination is a doorway, throw an exception
+                    // if (doorways.Contains(destination))
+                    // {
+                    //     throw new Exception("Destination is a doorway!");
+                    // }
 
-                    var destinationState = BuildNewState(amphipods, amphipod, destination, doorways, energy, energyCost * steps);
-                    queue.Enqueue(destinationState, energy + energyCost * steps);
+                    var newState = BuildNewState(amphipods, amphipod, destination, doorways, energy, cost * steps);
+                    queue.Enqueue(newState, energy + cost * steps);
                     continue;
                 }
 
+                // if this amphipod is in the hallway and its destination is blocked, skip it
                 if (row == 1)
                 {
                     // Console.WriteLine("Not moving because I'm in the hallway and my destination is blocked!");
@@ -118,22 +138,27 @@ public static class Day23
 
                         if (amphipods.All(a => (a.Row, a.Col) != left))
                         {
-                            var leftState = BuildNewState(amphipods, amphipod, left, doorways, energy, energyCost * 2);
-                            queue.Enqueue(leftState, energy + energyCost * 2);
+                            var leftState = BuildNewState(amphipods, amphipod, left, doorways, energy, cost * 2);
+                            queue.Enqueue(leftState, energy + cost * 2);
                         }
 
                         if (amphipods.All(a => (a.Row, a.Col) != right))
                         {
-                            var rightState = BuildNewState(amphipods, amphipod, right, doorways, energy, energyCost * 2);
-                            queue.Enqueue(rightState, energy + energyCost * 2);
+                            var rightState = BuildNewState(amphipods, amphipod, right, doorways, energy, cost * 2);
+                            queue.Enqueue(rightState, energy + cost * 2);
                         }
 
                         continue;
                     }
 
-                    // TODO: remove unnecessary scope... this is just hear for variable name collisions
-                    var neighborState = BuildNewState(amphipods, amphipod, neighbor, doorways, energy, energyCost);
-                    queue.Enqueue(neighborState, energy + energyCost);
+                    // if we're moving into a wall, skip it
+                    if (grid.GetValueOrDefault(neighbor) == '#')
+                    {
+                        continue;
+                    }
+
+                    var neighborState = BuildNewState(amphipods, amphipod, neighbor, doorways, energy, cost);
+                    queue.Enqueue(neighborState, energy + cost);
                 }
             }
         }
@@ -298,7 +323,8 @@ public static class Day23
         return state.Amphipods.All(a => a.Col == a.TargetCol && a.Row > 1);
     }
 
-    private static void DrawGrid(Dictionary<(int Row, int Col), char> grid, Amphipod[] amphipods)
+    private static void DrawGrid(Dictionary<(int Row, int Col), char> grid, Amphipod[] amphipods,
+        (int Row, int Col)[] doorways)
     {
         var minRow = grid.Keys.Min(k => k.Row);
         var maxRow = grid.Keys.Max(k => k.Row);
@@ -320,6 +346,10 @@ public static class Day23
                     var type = amphipods.First(a => (a.Row, a.Col) == (row, col)).Type;
                     Console.Write(type);
                 }
+                else if (doorways.Any(d => (d.Row, d.Col) == (row, col)))
+                {
+                    Console.Write('X');
+                }
                 else
                 {
                     Console.Write('.');
@@ -328,5 +358,7 @@ public static class Day23
 
             Console.WriteLine();
         }
+
+        Console.WriteLine();
     }
 }
