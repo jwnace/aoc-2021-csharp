@@ -10,15 +10,14 @@ public static class Day23
     private static readonly string[] Input1 = File.ReadAllLines("Day23/day23_part1.txt");
     private static readonly string[] Input2 = File.ReadAllLines("Day23/day23_part2.txt");
 
-    public static int Part1() => Solve1(Input1);
+    public static int Part1() => Solve(Input1);
 
-    public static int Part2() => Solve2(Input2);
+    public static int Part2() => Solve(Input2);
 
-    public static int Solve1(string[] input)
+    public static int Solve(string[] input)
     {
         var grid = BuildGrid(input);
         var initialState = BuildInitialState(grid);
-
         var seen = new HashSet<State>();
         var queue = new PriorityQueue<State, int>();
         queue.Enqueue(initialState, 0);
@@ -55,15 +54,18 @@ public static class Day23
                 {
                     var index = Array.IndexOf(amphipods, amphipod);
                     var newAmphipod = amphipod with { Row = move.Row, Col = move.Col };
-                    var newAmphipods = amphipods[..index].Append(newAmphipod).Concat(amphipods[(index + 1)..])
+                    var newAmphipods = amphipods[..index]
+                        .Append(newAmphipod)
+                        .Concat(amphipods[(index + 1)..])
                         .ToArray();
+
                     var newState = new State(newAmphipods, energy + amphipod.EnergyCost * move.Steps);
                     queue.Enqueue(newState, newState.Energy);
                 }
             }
         }
 
-        return -1;
+        throw new Exception("No solution found!");
     }
 
     private static Dictionary<(int Row, int Col), char> BuildGrid(IReadOnlyList<string> input)
@@ -176,15 +178,13 @@ public static class Day23
         Dictionary<(int Row, int Col), char> grid,
         [NotNullWhen(true)] out Move? move)
     {
-        var queue = new Queue<(int Row, int Col, int Steps)>();
         var seen = new HashSet<(int Row, int Col)>();
-
+        var queue = new Queue<(int Row, int Col, int Steps)>();
         queue.Enqueue((amphipod.Row, amphipod.Col, 0));
 
         while (queue.Any())
         {
             var state = queue.Dequeue();
-
             var (row, col, steps) = state;
             var position = (row, col);
 
@@ -272,7 +272,7 @@ public static class Day23
         Amphipod[] amphipods,
         Dictionary<(int Row, int Col), char> grid)
     {
-        var (row, col, type, energy, targetCol) = amphipod;
+        var (row, col, type, _, targetCol) = amphipod;
 
         // if I am in my target column...
         if (col != targetCol)
@@ -297,11 +297,6 @@ public static class Day23
         }
 
         return true;
-    }
-
-    public static int Solve2(string[] input)
-    {
-        throw new NotImplementedException();
     }
 
     private static bool IsFinalState(State state) =>

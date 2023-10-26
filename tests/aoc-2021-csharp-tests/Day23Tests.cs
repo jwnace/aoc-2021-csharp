@@ -110,7 +110,7 @@ public class Day23Tests
     }, 12521, TestName = "12521")]
     public void Part1_Example_ReturnsCorrectAnswer(string[] input, int expected)
     {
-        Day23.Solve1(input).Should().Be(expected);
+        Day23.Solve(input).Should().Be(expected);
     }
 
     [Test]
@@ -131,12 +131,12 @@ public class Day23Tests
     }, 44169, TestName = "44169")]
     public void Part2_Example_ReturnsCorrectAnswer(string[] input, int expected)
     {
-        Day23.Solve2(input).Should().Be(expected);
+        Day23.Solve(input).Should().Be(expected);
     }
 
     [Test]
     public void Part2_ReturnsCorrectAnswer()
     {
-        Day23.Part2().Should().Be(0);
+        Day23.Part2().Should().Be(50265);
     }
 }
