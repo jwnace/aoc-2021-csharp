@@ -57,10 +57,7 @@ public static partial class Day23
         return new State(amphipods.ToArray(), 0);
     }
 
-    private static void DrawGrid(
-        Dictionary<(int Row, int Col), char> grid,
-        Amphipod[] amphipods,
-        (int Row, int Col)[] doorways)
+    private static void DrawGrid(Dictionary<(int Row, int Col), char> grid, Amphipod[] amphipods)
     {
         var minRow = grid.Keys.Min(k => k.Row);
         var maxRow = grid.Keys.Max(k => k.Row);
@@ -81,10 +78,6 @@ public static partial class Day23
                 {
                     var type = amphipods.First(a => (a.Row, a.Col) == (row, col)).Type;
                     Console.Write(type);
-                }
-                else if (doorways.Any(d => (d.Row, d.Col) == (row, col)))
-                {
-                    Console.Write('X');
                 }
                 else
                 {
