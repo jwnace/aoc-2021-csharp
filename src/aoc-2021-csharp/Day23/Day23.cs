@@ -22,7 +22,16 @@ public static class Day23
         var queue = new PriorityQueue<State, int>();
         queue.Enqueue(initialState, 0);
 
-        DrawGrid(grid, initialState.Amphipods);
+        var hallwayPositions = new (int Row, int Col)[]
+        {
+            (1, 1),
+            (1, 2),
+            (1, 4),
+            (1, 6),
+            (1, 8),
+            (1, 10),
+            (1, 11),
+        };
 
         while (queue.Count > 0)
         {
@@ -34,11 +43,6 @@ public static class Day23
                 continue;
             }
 
-            if (seen.Count % 10_000 == 0)
-            {
-                Console.WriteLine($"Seen: {seen.Count,15:N0} | Queue: {queue.Count,15:N0}");
-            }
-
             seen.Add(state);
 
             if (IsFinalState(state))
@@ -48,7 +52,7 @@ public static class Day23
 
             foreach (var amphipod in amphipods)
             {
-                var possibleMoves = GetAllPossibleMoves(amphipod, amphipods, grid).ToList();
+                var possibleMoves = GetAllPossibleMoves(amphipod, amphipods, grid, hallwayPositions).ToList();
 
                 foreach (var move in possibleMoves)
                 {
@@ -123,44 +127,26 @@ public static class Day23
     private static IEnumerable<Move> GetAllPossibleMoves(
         Amphipod amphipod,
         Amphipod[] amphipods,
-        Dictionary<(int Row, int Col), char> grid)
+        Dictionary<(int Row, int Col), char> grid,
+        (int Row, int Col)[] hallwayPositions)
     {
-        // if I am in my final destination, I can't move
         if (IsAtFinalDestination(amphipod, amphipods, grid))
         {
             yield break;
         }
 
-        // if I am not at my final destination, I need to figure out where my final destination is
         if (TryGetFinalDestination(amphipod, amphipods, grid, out var finalDestination))
         {
-            // if I can reach my final destination, I should move there
             if (TryToReachPosition(amphipod, finalDestination, amphipods, grid, out var move))
             {
-                // TODO: figure out how to stop iterating entirely if we reach this point
                 yield return move;
             }
         }
 
-        // if we reach this point, it means that I'm not at my final destination, and I can't reach my final destination
-        // so... I can only move if I'm not in the hallway
         if (amphipod.Row == 1)
         {
-            // throw new Exception("not sure if this will ever happen, but I think it can...");
             yield break;
         }
-
-        // if I am in a room, I have to move to the hallway
-        var hallwayPositions = new (int Row, int Col)[]
-        {
-            (1, 1),
-            (1, 2),
-            (1, 4),
-            (1, 6),
-            (1, 8),
-            (1, 10),
-            (1, 11),
-        };
 
         foreach (var position in hallwayPositions)
         {
@@ -175,7 +161,7 @@ public static class Day23
         Amphipod amphipod,
         (int Row, int Col) destination,
         Amphipod[] amphipods,
-        Dictionary<(int Row, int Col), char> grid,
+        IReadOnlyDictionary<(int Row, int Col), char> grid,
         [NotNullWhen(true)] out Move? move)
     {
         var seen = new HashSet<(int Row, int Col)>();
@@ -201,6 +187,7 @@ public static class Day23
                 return true;
             }
 
+            // TODO: consider doing this differently do avoid allocating a ton of memory
             var neighbors = new (int Row, int Col)[]
             {
                 (row - 1, col),
@@ -211,13 +198,11 @@ public static class Day23
 
             foreach (var neighbor in neighbors)
             {
-                // don't move into walls
                 if (grid.GetValueOrDefault(neighbor) == '#')
                 {
                     continue;
                 }
 
-                // don't move into other amphipods
                 if (amphipods.Any(a => a.Row == neighbor.Row && a.Col == neighbor.Col))
                 {
                     continue;
@@ -239,8 +224,6 @@ public static class Day23
     {
         var (_, _, type, _, targetCol) = amphipod;
 
-        // look inside my target room for any amphipods that are the wrong type
-        // if there are NONE, then my final destination is the deepest available row in the target room
         if (RoomContainsTypeThatDoesNotMatch(targetCol, type, amphipods))
         {
             finalDestination = default;
@@ -250,7 +233,6 @@ public static class Day23
         var maxRow = grid.Keys.Max(x => x.Row) - 1;
         var minRow = 2;
 
-        // rooms extend from row `2` to row `grid.Count - 2`
         for (var r = maxRow; r >= minRow; r--)
         {
             if (IsEmptySpace(r, targetCol, amphipods))
@@ -260,34 +242,21 @@ public static class Day23
             }
         }
 
-        DrawGrid(grid, amphipods);
-
         throw new UnreachableException("This should never happen!");
-        finalDestination = default;
-        return false;
     }
 
     private static bool IsAtFinalDestination(
         Amphipod amphipod,
         Amphipod[] amphipods,
-        Dictionary<(int Row, int Col), char> grid)
+        IReadOnlyDictionary<(int Row, int Col), char> grid)
     {
         var (row, col, type, _, targetCol) = amphipod;
 
-        // if I am in my target column...
         if (col != targetCol)
         {
             return false;
         }
 
-        if (row is 0 or 1 || row == grid.Count - 1)
-        {
-            throw new UnreachableException("This should never happen!");
-            return false;
-        }
-
-        // look below me for any amphipods that I am blocking
-        // if there are NONE, then I am done moving
         for (var r = row + 1; r < grid.Count - 1; r++)
         {
             if (amphipods.Any(a => a.Row == r && a.Col == col && a.Type != type))
@@ -307,38 +276,4 @@ public static class Day23
 
     private static bool IsEmptySpace(int row, int col, IEnumerable<Amphipod> amphipods) =>
         !amphipods.Any(a => a.Row == row && a.Col == col);
-
-    private static void DrawGrid(Dictionary<(int Row, int Col), char> grid, Amphipod[] amphipods)
-    {
-        var minRow = grid.Keys.Min(k => k.Row);
-        var maxRow = grid.Keys.Max(k => k.Row);
-        var minCol = grid.Keys.Min(k => k.Col);
-        var maxCol = grid.Keys.Max(k => k.Col);
-
-        for (var row = minRow; row <= maxRow; row++)
-        {
-            for (var col = minCol; col <= maxCol; col++)
-            {
-                var value = grid.GetValueOrDefault((row, col));
-
-                if (value == '#')
-                {
-                    Console.Write('#');
-                }
-                else if (amphipods.Any(a => a.Row == row && a.Col == col))
-                {
-                    var type = amphipods.First(a => (a.Row, a.Col) == (row, col)).Type;
-                    Console.Write(type);
-                }
-                else
-                {
-                    Console.Write('.');
-                }
-            }
-
-            Console.WriteLine();
-        }
-
-        Console.WriteLine();
-    }
 }
