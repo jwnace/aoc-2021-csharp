@@ -9,7 +9,7 @@ public static class Day25
 
     public static int Part1() => Solve1(Input);
 
-    public static int Part2() => Solve2(Input);
+    public static string Part2() => "Merry Christmas!";
 
     private static int Solve1(string[] input)
     {
@@ -71,10 +71,5 @@ public static class Day25
         }
 
         return step;
-    }
-
-    private static int Solve2(string[] input)
-    {
-        throw new NotImplementedException();
     }
 }
